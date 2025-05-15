@@ -3,14 +3,21 @@ import 'package:flutter_application_2/ui/pages/login_page.dart';
 import 'package:flutter_application_2/ui/pages/perfil_page.dart';
 import 'package:flutter_application_2/ui/pages/register_page.dart';
 import 'package:flutter_application_2/ui/pages/subir_libro_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: "../.env");
+
+  String supabaseUrl = dotenv.env['SUPABASE_URL'] ?? "";
+  String supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? "";
+
   await Supabase.initialize(
-    url: 'https://deltcwumaksnjfpeceml.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbHRjd3VtYWtzbmpmcGVjZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMTc0NDMsImV4cCI6MjA1OTg5MzQ0M30.UVios0MuUDeZb2III4vw2xIpWQ1ElcoHb_vE-MBG8ao',
-  );
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey);
+
   runApp(MyApp());
 }
 

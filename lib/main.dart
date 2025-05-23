@@ -3,6 +3,7 @@ import 'package:flutter_application_2/ui/pages/login_page.dart';
 import 'package:flutter_application_2/ui/pages/perfil_page.dart';
 import 'package:flutter_application_2/ui/pages/register_page.dart';
 import 'package:flutter_application_2/ui/pages/subir_libro_page.dart';
+import 'package:flutter_application_2/ui/pages/lista_libros_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/registro': (context) => const RegisterPage(),
         '/subirLibro' : (context) => const SubirLibroPage(),
+        '/listalibros' : (context) => const ListaLibrosPage(),
       },
     );
   }
@@ -128,6 +130,21 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 Navigator.pushNamed(context, '/perfil');
+              },
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.person),
+              label: const Text('Ver libros disponibles'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                textStyle: const TextStyle(fontSize: 18),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/listalibros');
               },
             ),
           ],

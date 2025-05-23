@@ -12,28 +12,34 @@ class DetallesLibroPage extends StatelessWidget {
     final bool esPropio = libro['usuario_id'] == userId;
 
     return Scaffold(
-      appBar: AppBar(title: Text(libro['titulo'])),
+      appBar: AppBar(title: Text(libro['Title'])),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Card(
               margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
                     child: Image.network(
-                      libro['imagen_url'],
-                      fit: BoxFit.cover,
+                      libro['Image_url'],
+                      fit: BoxFit.contain,
                       height: 200,
                       loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
                         return const Center(child: CircularProgressIndicator());
                       },
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Center(child: Text('No se pudo cargar la imagen')),
+                      errorBuilder:
+                          (context, error, stackTrace) => const Center(
+                            child: Text('No se pudo cargar la imagen'),
+                          ),
                     ),
                   ),
                   Padding(
@@ -41,15 +47,19 @@ class DetallesLibroPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(libro['titulo'],
-                            style: Theme.of(context).textTheme.headlineMedium),
+                        Text(
+                          libro['Title'],
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
                         const SizedBox(height: 8),
-                        Text('Autor: ${libro['autor']}',
-                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                        Text(
+                          'Autor: ${libro['Author']}',
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
                         const SizedBox(height: 8),
-                        Text(libro['descripcion']),
+                        Text(libro['Description']),
                         const SizedBox(height: 8),
-                        Text('Categoría: ${libro['categoria']}'),
+                        Text('Categoría: ${libro['Category']}'),
                       ],
                     ),
                   ),
@@ -59,61 +69,68 @@ class DetallesLibroPage extends StatelessWidget {
             const SizedBox(height: 20),
             esPropio
                 ? ElevatedButton.icon(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('¿Eliminar libro?'),
-                          content:
-                              const Text('¿Estás seguro de que querés eliminar este libro?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancelar'),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('¿Eliminar libro?'),
+                            content: const Text(
+                              '¿Estás seguro de que querés eliminar este libro?',
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Eliminar'),
-                            ),
-                          ],
-                        ),
-                      );
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                    );
 
-                      if (confirm == true) {
-                        try {
-                          await Supabase.instance.client
-                              .from('libros')
-                              .delete()
-                              .eq('id', libro['id']);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Libro eliminado')),
-                          );
-                          Navigator.pop(context);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
-                        }
+                    if (confirm == true) {
+                      try {
+                        await Supabase.instance.client
+                            .from('Books')
+                            .delete()
+                            .eq('id', libro['id']);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Libro eliminado')),
+                        );
+                        Navigator.pop(context);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/perfil',
+                          (route) => false, // Elimina toda la pila anterior
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
                       }
-                    },
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Eliminar libro'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                  )
-                : ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('Función de contacto simulada.')),
-                      );
-                    },
-                    icon: const Icon(Icons.message),
-                    label: const Text('Contactar al dueño'),
+                    }
+                  },
+                  icon: const Icon(Icons.delete),
+                  label: const Text('Eliminar libro'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
                   ),
+                )
+                : ElevatedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Función de contacto simulada.'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.message),
+                  label: const Text('Contactar al dueño'),
+                ),
             const SizedBox(height: 40),
           ],
         ),

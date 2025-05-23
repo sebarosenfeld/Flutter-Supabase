@@ -13,11 +13,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Future<List<dynamic>> obtenerLibros() async {
     final response = await Supabase.instance.client
-        .from('libros')
-        .select('id, titulo, autor, imagen_url, usuario_id, usuarios:usuario_id(email)')
-        .order('created_at', ascending: false);
+        .from('Books')
+        .select('*, usuarios(nombre)')  // trae datos del dueño
+        .order('id', ascending: false)
+        .execute();
 
-    return response;
+    if (response.error != null) {
+      throw response.error!;
+    }
+
+    return response.data as List<dynamic>;
   }
 
   @override
@@ -44,7 +49,7 @@ class _HomePageState extends State<HomePage> {
           }
 
           if (snapshot.hasError) {
-            return const Center(child: Text('Error al cargar libros.'));
+            return Center(child: Text('Error al cargar libros: ${snapshot.error}'));
           }
 
           final libros = snapshot.data;
@@ -61,11 +66,11 @@ class _HomePageState extends State<HomePage> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: ListTile(
-                  leading: libro['imagen_url'] != null
-                      ? Image.network(libro['imagen_url'], width: 50, height: 50, fit: BoxFit.cover)
+                  leading: libro['Image_url'] != null
+                      ? Image.network(libro['Image_url'], width: 50, height: 50, fit: BoxFit.cover)
                       : const Icon(Icons.book),
-                  title: Text(libro['titulo']),
-                  subtitle: Text('Autor: ${libro['autor']}\nDueño: ${libro['usuarios']['email']}'),
+                  title: Text(libro['Title']),
+                  subtitle: Text('Autor: ${libro['Author']}\nDueño: ${libro['usuarios']['nombre']}'),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -91,4 +96,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+extension on PostgrestResponse {
+  get error => null;
 }

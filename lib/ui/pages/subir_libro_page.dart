@@ -40,9 +40,9 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
     }
   }
 
-  Future<void> subirLibro() async {
+  Future<void> subirLibro(BuildContext context) async {
     if (!_formKey.currentState!.validate() || _imagenBytes == null) {
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Completá todos los campos y seleccioná una imagen.'),
         ),
@@ -76,9 +76,7 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
           .getPublicUrl('imagenes/$fileName');
     } catch (e) {
       print("Error al subir imagen: $e");
-      ScaffoldMessenger.of(
-        context as BuildContext,
-      ).showSnackBar(SnackBar(content: Text('Error al subir imagen: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir imagen: $e')));
       setState(() => _cargando = false);
       return;
     }
@@ -88,22 +86,22 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
 
       if (userId == null) throw Exception('Usuario no autenticado');
 
-      await Supabase.instance.client.from('libros').insert({
-        'titulo': _tituloController.text,
-        'autor': _autorController.text,
-        'descripcion': _descripcionController.text,
-        'categoria': _categoriaSeleccionada,
-        'imagen_url': imageUrl,
+      await Supabase.instance.client.from('Books').insert({
+        'Title': _tituloController.text,
+        'Author': _autorController.text,
+        'Description': _descripcionController.text,
+        'Category': _categoriaSeleccionada,
+        'Image_url': imageUrl,
         'usuario_id': userId,
       });
 
       ScaffoldMessenger.of(
-        context as BuildContext,
+        context,
       ).showSnackBar(const SnackBar(content: Text('Libro subido con éxito.')));
-      Navigator.pop(context as BuildContext);
+      Navigator.pop(context, true);
     } catch (e) {
       print("Error al guardar libro: $e");
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al guardar el libro.')),
       );
     } finally {
@@ -201,7 +199,7 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
                       ),
                       const SizedBox(height: 30),
                       ElevatedButton.icon(
-                        onPressed: subirLibro,
+                        onPressed: () async { await subirLibro(context);},
                         icon: const Icon(Icons.upload),
                         label: const Text('Subir libro'),
                       ),

@@ -21,9 +21,9 @@ class _ListaLibrosPageState extends State<ListaLibrosPage> {
 
   Future<List<dynamic>> cargarLibros() async {
     final response = await Supabase.instance.client
-        .from('libros')
-        .select('*')
-        .order('created_at', ascending: false);
+        .from('Books')
+        .select('*,usuarios(id, nombre)')
+        .order('id', ascending: false);
 
     return response;
   }
@@ -52,11 +52,11 @@ class _ListaLibrosPageState extends State<ListaLibrosPage> {
               return Card(
                 margin: const EdgeInsets.all(10),
                 child: ListTile(
-                  leading: libro['imagen_url'] != null
-                      ? Image.network(libro['imagen_url'], width: 50, height: 70, fit: BoxFit.cover)
+                  leading: libro['Image_url'] != null
+                      ? Image.network(libro['Image_url'], width: 50, height: 70, fit: BoxFit.cover)
                       : const Icon(Icons.book),
-                  title: Text(libro['titulo']),
-                  subtitle: Text(libro['autor']),
+                  title: Text(libro['Title']),
+                  subtitle: Text(libro['Autor: ${libro['Author']}\nSubido por: ${libro['usuarios']?['nombre'] ?? 'Desconocido'}']),
                   onTap: () {
                     Navigator.push(
                       context,

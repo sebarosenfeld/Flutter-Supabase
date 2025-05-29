@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../models/libro.dart';
 
 class DetallesLibroPage extends StatelessWidget {
-  final Map<String, dynamic> libro;
+  final Libro libro;
 
   const DetallesLibroPage({super.key, required this.libro});
 
   @override
   Widget build(BuildContext context) {
     final userId = Supabase.instance.client.auth.currentUser?.id;
-    final bool esPropio = libro['usuario_id'] == userId;
+    final bool esPropio = libro.usuarioId == userId;
 
     return Scaffold(
-      appBar: AppBar(title: Text(libro['Title'])),
+      appBar: AppBar(title: Text(libro.title)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -29,7 +30,7 @@ class DetallesLibroPage extends StatelessWidget {
                       top: Radius.circular(16),
                     ),
                     child: Image.network(
-                      libro['Image_url'],
+                      libro.imageUrl ?? '',
                       fit: BoxFit.contain,
                       height: 200,
                       loadingBuilder: (context, child, progress) {
@@ -48,18 +49,18 @@ class DetallesLibroPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          libro['Title'],
+                          libro.title,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Autor: ${libro['Author']}',
+                          'Autor: ${libro.author}',
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 8),
-                        Text(libro['Description']),
+                        Text(libro.description),
                         const SizedBox(height: 8),
-                        Text('Categoría: ${libro['Category']}'),
+                        Text('Categoría: ${libro.category}'),
                       ],
                     ),
                   ),
@@ -96,7 +97,7 @@ class DetallesLibroPage extends StatelessWidget {
                         await Supabase.instance.client
                             .from('Books')
                             .delete()
-                            .eq('id', libro['id']);
+                            .eq('id', libro.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Libro eliminado')),
                         );

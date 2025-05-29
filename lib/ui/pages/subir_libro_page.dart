@@ -20,22 +20,17 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
   final _descripcionController = TextEditingController();
   String? _categoriaSeleccionada;
   Uint8List? _imagenBytes;
-  io.File? _imagenFile;
   bool _cargando = false;
 
   Future<void> _seleccionarImagen() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
 
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
 
       setState(() {
         _imagenBytes = bytes;
-
-        if (!kIsWeb) {
-          _imagenFile = io.File(pickedFile.path);
-        }
       });
     }
   }
@@ -193,7 +188,7 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
                                 )
                                 : Image.memory(
                                   _imagenBytes!,
-                                  height: 200,
+                                  height: 300,
                                   fit: BoxFit.cover,
                                 ),
                       ),

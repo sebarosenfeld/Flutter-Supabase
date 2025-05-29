@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/perfil');
+        Navigator.pushReplacementNamed(context, '/');
       }
     } on AuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

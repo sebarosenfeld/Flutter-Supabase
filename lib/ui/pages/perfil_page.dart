@@ -81,13 +81,13 @@ class _PerfilPageState extends State<PerfilPage> {
       appBar: AppBar(
         title: const Text('Mi Perfil'),
         actions: [
-    IconButton(
-      icon: const Icon(Icons.home),
-      onPressed: () {
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      },
-    ),
-  ],
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -121,6 +121,28 @@ class _PerfilPageState extends State<PerfilPage> {
             // Botón para agregar un nuevo libro
             ElevatedButton.icon(
               onPressed: () async {
+                final user = Supabase.instance.client.auth.currentUser;
+
+                final response =
+                    await Supabase.instance.client
+                        .from('usuarios')
+                        .select('nombre')
+                        .eq('id', user?.id)
+                        .single();
+
+                if (response == null ||
+                    response['nombre'] == null ||
+                    response['nombre'].toString().trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Debés completar tu perfil antes de subir un libro.',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 final resultado = await Navigator.pushNamed(
                   context,
                   '/subirLibro',

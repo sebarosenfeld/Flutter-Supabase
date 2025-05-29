@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -40,7 +41,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register() async {
-    // Verificación de validación
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailController.text;
@@ -49,11 +49,19 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _loading = true);
 
     try {
-      // Intentar registrar el usuario
+      // Registrar el usuario
       final result = await _auth.signUp(email: email, password: password);
 
-      if (result.user != null) {
-         Navigator.pushReplacementNamed(context, '/login'); // Volver a la pantalla de login
+      final user = result.user;
+
+      if (user != null) {
+        // Insertar en la tabla 'usuarios' usando el mismo ID
+        await Supabase.instance.client.from('usuarios').insert({
+          'id': user.id,
+          'nombre': 'Nuevo usuario', // O podés pedir el nombre en otro campo
+        });
+
+        Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       print('Error al registrarse: $e');
@@ -80,20 +88,21 @@ class _RegisterPageState extends State<RegisterPage> {
               TextFormField(
                 controller: _emailController, // Usar el controller
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: validateEmail,  // Validación personalizada
+                validator: validateEmail, // Validación personalizada
               ),
               TextFormField(
                 controller: _passwordController, // Usar el controller
                 decoration: const InputDecoration(labelText: 'Contraseña'),
                 obscureText: true,
-                validator: validatePassword,  // Validación personalizada
+                validator: validatePassword, // Validación personalizada
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loading ? null : _register,
-                child: _loading
-                    ? const CircularProgressIndicator()
-                    : const Text("Crear Cuenta"),
+                child:
+                    _loading
+                        ? const CircularProgressIndicator()
+                        : const Text("Crear Cuenta"),
               ),
             ],
           ),

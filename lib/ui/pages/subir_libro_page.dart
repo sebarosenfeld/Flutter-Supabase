@@ -102,7 +102,7 @@ class _SubirLibroPageState extends State<SubirLibroPage> {
     } catch (e) {
       print("Error al guardar libro: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al guardar el libro.')),
+        SnackBar(content: Text('Error al guardar el libro. $e')),
       );
     } finally {
       setState(() => _cargando = false);

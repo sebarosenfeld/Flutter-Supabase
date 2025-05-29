@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/ui/pages/detalles_libro_page.dart';
+import 'package:flutter_application_2/models/libro.dart';
+import 'package:flutter_application_2/models/libros_response.dart';
+import 'package:flutter_application_2/services/libro_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -62,17 +66,13 @@ class _PerfilPageState extends State<PerfilPage> {
     }
   }
 
-  Future<List<Map<String, dynamic>>> _traerMisLibros() async {
+  Future<LibrosResponse> _traerMisLibros() async {
     final userId = supabase.auth.currentUser?.id;
-    if (userId == null) return [];
+    if (userId == null) return LibrosResponseError('No hay usuario autenticado.');
 
-    final data = await supabase
-        .from('Books')
-        .select()
-        .eq('usuario_id', userId)
-        .order('id', ascending: false);
+    final response = await LibroService.getInstance().fetchBooks(FetchUserBooks());
 
-    return List<Map<String, dynamic>>.from(data);
+    return response;
   }
 
   @override
@@ -164,20 +164,20 @@ class _PerfilPageState extends State<PerfilPage> {
 
             // Lista de libros
             Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
+              child: FutureBuilder<LibrosResponse>(
                 future: _traerMisLibros(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+                  } else if (snapshot.data == null || snapshot.data!.libros.isEmpty) {
                     return const Center(
                       child: Text('No subiste ningún libro.'),
                     );
                   }
 
-                  final libros = snapshot.data!;
+                  final libros = snapshot.data!.libros;
                   return ListView.builder(
                     itemCount: libros.length,
                     itemBuilder: (context, index) {
@@ -189,9 +189,9 @@ class _PerfilPageState extends State<PerfilPage> {
                         ),
                         child: ListTile(
                           leading:
-                              libro['Image_url'] != null
+                              libro.imageUrl != null
                                   ? Image.network(
-                                    libro['Image_url'],
+                                    libro.imageUrl!,
                                     width: 50,
                                     height: 70,
                                     fit: BoxFit.cover,
@@ -200,11 +200,11 @@ class _PerfilPageState extends State<PerfilPage> {
                                             const Icon(Icons.broken_image),
                                   )
                                   : const Icon(Icons.book),
-                          title: Text(libro['Title']),
+                          title: Text(libro.title),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(libro['Author']),
+                              Text(libro.author),
                               const SizedBox(height: 8),
                               Align(
                                 alignment: Alignment.centerRight,
